@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nvidia-smi
+  namespace: default
+spec:
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: nvidia-smi
+  template:
+    metadata:
+      labels:
+        app: nvidia-smi
+    spec:
+      terminationGracePeriodSeconds: 1
+      runtimeClassName: nvidia
+      containers:
+      - name: nvidia-smi
+        image: nvcr.io/nvidia/cuda:12.5.0-base-ubuntu20.04
+        command: ["/bin/sh", "-c"]
+        args: ["while true; do sleep 5; done"]
+        env:
+        - name: NVIDIA_VISIBLE_DEVICES
+          value: "__DEVICE_UUID__"
+        resources:
+          limits:
+            nvidia.com/gpu: 1
+      restartPolicy: Always
